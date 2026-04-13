@@ -1,12 +1,14 @@
 package fr.projet.betasunny.betasunny.exception;
 
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.validation.ConstraintViolationException;
 import org.springframework.dao.DataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
@@ -86,7 +88,7 @@ public class GlobalExceptionHandler {
     }
 
     // --- 6. ERREURS DE VALIDATION SUR LES PARAMÈTRES (ex: @PathVariable, @RequestParam) ---
-    @ExceptionHandler(jakarta.validation.ConstraintViolationException.class)
+    @ExceptionHandler(ConstraintViolationException.class)
     public ResponseEntity<ApiErrorResponse> handleConstraintViolation(jakarta.validation.ConstraintViolationException ex) {
         List<String> errors = ex.getConstraintViolations()
                 .stream()
@@ -103,7 +105,7 @@ public class GlobalExceptionHandler {
 
     // --- 7. PARAMÈTRE MANQUANT (SB-REQ-401) ---
     // Ex: Oubli d'un @RequestParam obligatoire
-    @ExceptionHandler(org.springframework.web.bind.MissingServletRequestParameterException.class)
+    @ExceptionHandler(MissingServletRequestParameterException.class)
     public ResponseEntity<ApiErrorResponse> handleMissingParam(org.springframework.web.bind.MissingServletRequestParameterException ex) {
         return ResponseEntity.badRequest().body(new ApiErrorResponse(
                 SunnyErrorCode.MISSING_PARAMETER.getCode(),
