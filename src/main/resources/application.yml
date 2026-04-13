@@ -2,6 +2,7 @@ spring:
   application:
     name: sunnybeta-api
 
+
   # Configuration de la base de données
   datasource:
     url: jdbc:postgresql://localhost:5432/sunnybeta_db
@@ -25,3 +26,5 @@ spring:
 # Configuration du serveur
 server:
   port: 8080
+  servlet:
+    context-path: /api
