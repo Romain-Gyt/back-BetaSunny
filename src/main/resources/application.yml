@@ -1,0 +1,27 @@
+spring:
+  application:
+    name: sunnybeta-api
+
+  # Configuration de la base de données
+  datasource:
+    url: jdbc:postgresql://localhost:5432/sunnybeta_db
+    username: ${DB_USERNAME:postgres}
+    password: ${DB_PASSWORD:password}
+    driver-class-name: org.postgresql.Driver
+
+  # Configuration JPA / Hibernate
+  jpa:
+    hibernate:
+      ddl-auto: update # Crée ou modifie les tables automatiquement au démarrage
+    show-sql: true     # Affiche les requêtes SQL dans la console (top pour le debug)
+    properties:
+      hibernate:
+        format_sql: true # Formate le SQL pour qu'il soit lisible
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+  web:
+    error:
+      include-message: always
+
+# Configuration du serveur
+server:
+  port: 8080
