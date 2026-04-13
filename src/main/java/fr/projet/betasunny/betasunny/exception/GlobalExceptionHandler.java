@@ -60,11 +60,8 @@ public class GlobalExceptionHandler {
 
 
     // --- 3. ERREURS SQL / BASE DE DONNÉES ---
-    // On attrape DataAccessException qui est la racine des erreurs Spring Data / Hibernate
     @ExceptionHandler(DataAccessException.class)
     public ResponseEntity<ApiErrorResponse> handleDatabaseError(DataAccessException ex) {
-        // LOG IMPORTANT : On log l'erreur réelle pour le développeur dans la console
-        // Mais on ne l'envoie JAMAIS au client pour ne pas exposer la structure SQL
         System.err.println("Database Error: " + ex.getRootCause());
 
         return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(new ApiErrorResponse(
@@ -97,7 +94,7 @@ public class GlobalExceptionHandler {
                 .toList();
 
         return ResponseEntity.badRequest().body(new ApiErrorResponse(
-                SunnyErrorCode.VALIDATION_ERROR.getCode(),    // "SB-REQ-400"
+                SunnyErrorCode.VALIDATION_ERROR.getCode(),
                 "Erreur de validation des paramètres",
                 java.time.LocalDateTime.now(),
                 errors
