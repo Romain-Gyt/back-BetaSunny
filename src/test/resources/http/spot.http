@@ -1,0 +1,18 @@
+### Récupérer la liste des spots
+GET http://localhost:8080/api/spot
+Accept: application/json
+
+### Créer un nouveau spot (Exemple de POST)
+POST http://localhost:8080/api/spot
+Content-Type: application/json
+
+{
+  "name": "Biarritz",
+  "latitude": 43.4831,
+  "longitude": -1.5586,
+  "azimut": 36
+}
+
+### Récupérer un spot
+POST http://localhost:8080/api/spot/2
+Accept: application/json
