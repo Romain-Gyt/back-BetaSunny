@@ -3,6 +3,8 @@ package fr.projet.betasunny.betasunny.service.impl;
 import fr.projet.betasunny.betasunny.bo.Spot;
 import fr.projet.betasunny.betasunny.dto.spot.SpotRequest;
 import fr.projet.betasunny.betasunny.dto.spot.SpotResponse;
+import fr.projet.betasunny.betasunny.exception.ResourceNotFoundException;
+import fr.projet.betasunny.betasunny.exception.SunnyErrorCode;
 import fr.projet.betasunny.betasunny.mapper.spot.SpotMapper;
 import fr.projet.betasunny.betasunny.repository.SpotRepository;
 import fr.projet.betasunny.betasunny.service.SpotService;
@@ -30,16 +32,19 @@ public class SpotServiceImpl implements SpotService {
     @Override
     @Transactional
     public SpotResponse updateSpot(Long id, SpotRequest request) {
-        Spot existing =spotRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Spot not found"));
+        Spot existing =spotRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException(SunnyErrorCode.RESOURCE_NOT_FOUND));
         spotMapper.updateSpot(request,existing);
         Spot updatedSpot = spotRepository.save(existing);
         return spotMapper.toSpotResponse(updatedSpot);
     }
 
     @Override
+    @Transactional
     public SpotResponse getSpotById(Long id) {
-       Spot spot =  spotRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Spot not found"));
-       return spotMapper.toSpotResponse(spot);
+        Spot spot = spotRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException(SunnyErrorCode.SPOT_NOT_FOUND));
+
+        return spotMapper.toSpotResponse(spot);
     }
 
     @Override
@@ -53,9 +58,8 @@ public class SpotServiceImpl implements SpotService {
     @Override
     @Transactional
     public void deleteSpot(Long id) {
-        if (!spotRepository.existsById(id)) {
-            throw new EntityNotFoundException("Spot not found");
-        }
-        spotRepository.deleteById(id);
+        Spot spot = spotRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException(SunnyErrorCode.SPOT_NOT_FOUND));
+        spotRepository.delete(spot);
     }
 }

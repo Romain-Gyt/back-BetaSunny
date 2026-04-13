@@ -10,5 +10,9 @@ Content-Type: application/json
   "name": "Biarritz",
   "latitude": 43.4831,
   "longitude": -1.5586,
-  "azimut": 361
+  "azimut": 36
 }
+
+### Récupérer un spot
+POST http://localhost:8080/api/spot/2
+Accept: application/json

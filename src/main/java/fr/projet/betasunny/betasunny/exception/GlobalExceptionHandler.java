@@ -4,6 +4,8 @@ import jakarta.persistence.EntityNotFoundException;
 import org.springframework.dao.DataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -19,7 +21,7 @@ public class GlobalExceptionHandler {
         List<String> validationKeys = ex.getBindingResult()
                 .getFieldErrors()
                 .stream()
-                .map(error -> "validation." + error.getField() + "." + error.getCode().toLowerCase())
+                .map(error -> "validation." + error.getField() + "." + error.getCode().toLowerCase() + " : " +  error.getDefaultMessage())
                 .toList();
 
         return ResponseEntity.badRequest().body(new ApiErrorResponse(
@@ -27,6 +29,20 @@ public class GlobalExceptionHandler {
                 SunnyErrorCode.VALIDATION_ERROR.getMessage(),
                 LocalDateTime.now(),
                 validationKeys
+        ));
+    }
+
+    //  : GESTION DES ERREURS MÉTIERS (ex: SPOT_NOT_FOUND) ---
+    @ExceptionHandler(ResourceNotFoundException.class)
+    public ResponseEntity<ApiErrorResponse> handleBusinessResourceNotFound(ResourceNotFoundException ex) {
+
+        SunnyErrorCode errorCode = ex.getErrorCode();
+
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ApiErrorResponse(
+                errorCode.getCode(),
+                errorCode.getMessage(),
+                LocalDateTime.now(),
+                null
         ));
     }
 
@@ -40,6 +56,8 @@ public class GlobalExceptionHandler {
                 null
         ));
     }
+
+
 
     // --- 3. ERREURS SQL / BASE DE DONNÉES ---
     // On attrape DataAccessException qui est la racine des erreurs Spring Data / Hibernate
@@ -65,6 +83,58 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ApiErrorResponse(
                 SunnyErrorCode.NULL_POINTER.getCode(),
                 SunnyErrorCode.NULL_POINTER.getMessage(),
+                LocalDateTime.now(),
+                null
+        ));
+    }
+
+    // --- 6. ERREURS DE VALIDATION SUR LES PARAMÈTRES (ex: @PathVariable, @RequestParam) ---
+    @ExceptionHandler(jakarta.validation.ConstraintViolationException.class)
+    public ResponseEntity<ApiErrorResponse> handleConstraintViolation(jakarta.validation.ConstraintViolationException ex) {
+        List<String> errors = ex.getConstraintViolations()
+                .stream()
+                .map(violation -> violation.getPropertyPath() + ": " + violation.getMessage())
+                .toList();
+
+        return ResponseEntity.badRequest().body(new ApiErrorResponse(
+                SunnyErrorCode.VALIDATION_ERROR.getCode(),    // "SB-REQ-400"
+                "Erreur de validation des paramètres",
+                java.time.LocalDateTime.now(),
+                errors
+        ));
+    }
+
+    // --- 7. PARAMÈTRE MANQUANT (SB-REQ-401) ---
+    // Ex: Oubli d'un @RequestParam obligatoire
+    @ExceptionHandler(org.springframework.web.bind.MissingServletRequestParameterException.class)
+    public ResponseEntity<ApiErrorResponse> handleMissingParam(org.springframework.web.bind.MissingServletRequestParameterException ex) {
+        return ResponseEntity.badRequest().body(new ApiErrorResponse(
+                SunnyErrorCode.MISSING_PARAMETER.getCode(),
+                "Le paramètre suivant est absent : " + ex.getParameterName(),
+                LocalDateTime.now(),
+                null
+        ));
+    }
+
+    // --- 8. JSON MALFORMÉ (SB-REQ-402) ---
+    // Ex: Une virgule en trop ou un format de date invalide dans le JSON
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity<ApiErrorResponse> handleMalformedJson(org.springframework.http.converter.HttpMessageNotReadableException ex) {
+        return ResponseEntity.badRequest().body(new ApiErrorResponse(
+                SunnyErrorCode.MALFORMED_JSON.getCode(),
+                SunnyErrorCode.MALFORMED_JSON.getMessage(),
+                LocalDateTime.now(),
+                null
+        ));
+    }
+
+    // --- 9. MAUVAISE MÉTHODE HTTP (SB-REQ-405) ---
+    // Ex: Faire un POST sur une route qui n'accepte que du GET
+    @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
+    public ResponseEntity<ApiErrorResponse> handleMethodNotSupported(org.springframework.web.HttpRequestMethodNotSupportedException ex) {
+        return ResponseEntity.status(HttpStatus.METHOD_NOT_ALLOWED).body(new ApiErrorResponse(
+                SunnyErrorCode.METHOD_NOT_SUPPORTED.getCode(),
+                "La méthode " + ex.getMethod() + " n'est pas autorisée pour cette URL.",
                 LocalDateTime.now(),
                 null
         ));
