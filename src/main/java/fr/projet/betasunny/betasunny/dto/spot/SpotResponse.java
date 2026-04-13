@@ -5,6 +5,6 @@ public record SpotResponse(
         String name,
         Double latitude,
         Double longitude,
-        Integer Azimuth
+        Integer azimut
 ) {
 }
