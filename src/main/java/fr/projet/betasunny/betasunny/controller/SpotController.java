@@ -25,7 +25,7 @@ public class SpotController {
 
     @GetMapping
     public ResponseEntity<List<SpotResponse>> getAllSpots() {
-       return ResponseEntity.ok(spotService.getAllSpots());
+        return ResponseEntity.ok(spotService.getAllSpots());
     }
 
     @PostMapping

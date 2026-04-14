@@ -7,6 +7,8 @@ import jakarta.validation.constraints.NotNull;
 
 public record SpotRequest(
         @NotBlank(message = " {spot.name.blank}")
+        @Min(value = 2,message = "{spot.name.min}")
+        @Max(value = 50, message = "{spot.name.max}")
         String name,
         @NotNull
         @Min(value = -90, message = "{spot.latitude.range}")
