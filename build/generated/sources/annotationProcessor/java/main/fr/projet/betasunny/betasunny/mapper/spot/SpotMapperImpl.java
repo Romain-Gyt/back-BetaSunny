@@ -3,12 +3,13 @@ package fr.projet.betasunny.betasunny.mapper.spot;
 import fr.projet.betasunny.betasunny.bo.Spot;
 import fr.projet.betasunny.betasunny.dto.spot.SpotRequest;
 import fr.projet.betasunny.betasunny.dto.spot.SpotResponse;
+import java.time.LocalDateTime;
 import javax.annotation.processing.Generated;
 import org.springframework.stereotype.Component;
 
 @Generated(
     value = "org.mapstruct.ap.MappingProcessor",
-    date = "2026-04-13T14:48:39+0200",
+    date = "2026-04-14T15:08:30+0200",
     comments = "version: 1.5.5.Final, compiler: IncrementalProcessingEnvironment from gradle-language-java-9.4.1.jar, environment: Java 21.0.3 (Amazon.com Inc.)"
 )
 @Component
@@ -25,14 +26,16 @@ public class SpotMapperImpl implements SpotMapper {
         Double latitude = null;
         Double longitude = null;
         Integer azimut = null;
+        LocalDateTime createdAt = null;
 
         id = spot.getId();
         name = spot.getName();
         latitude = spot.getLatitude();
         longitude = spot.getLongitude();
         azimut = spot.getAzimut();
+        createdAt = spot.getCreatedAt();
 
-        SpotResponse spotResponse = new SpotResponse( id, name, latitude, longitude, azimut );
+        SpotResponse spotResponse = new SpotResponse( id, name, latitude, longitude, azimut, createdAt );
 
         return spotResponse;
     }
