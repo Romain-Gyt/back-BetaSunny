@@ -89,7 +89,7 @@ public class GlobalExceptionHandler {
 
     // --- 6. ERREURS DE VALIDATION SUR LES PARAMÈTRES (ex: @PathVariable, @RequestParam) ---
     @ExceptionHandler(ConstraintViolationException.class)
-    public ResponseEntity<ApiErrorResponse> handleConstraintViolation(jakarta.validation.ConstraintViolationException ex) {
+    public ResponseEntity<ApiErrorResponse> handleConstraintViolation(ConstraintViolationException ex) {
         List<String> errors = ex.getConstraintViolations()
                 .stream()
                 .map(violation -> violation.getPropertyPath() + ": " + violation.getMessage())
@@ -106,7 +106,7 @@ public class GlobalExceptionHandler {
     // --- 7. PARAMÈTRE MANQUANT (SB-REQ-401) ---
     // Ex: Oubli d'un @RequestParam obligatoire
     @ExceptionHandler(MissingServletRequestParameterException.class)
-    public ResponseEntity<ApiErrorResponse> handleMissingParam(org.springframework.web.bind.MissingServletRequestParameterException ex) {
+    public ResponseEntity<ApiErrorResponse> handleMissingParam(MissingServletRequestParameterException ex) {
         return ResponseEntity.badRequest().body(new ApiErrorResponse(
                 SunnyErrorCode.MISSING_PARAMETER.getCode(),
                 "Le paramètre suivant est absent : " + ex.getParameterName(),
